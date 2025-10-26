@@ -16,9 +16,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 WORKDIR /var/www/html
 COPY app /var/www/html
 
-# Установка зависимостей Composer
-RUN composer install --optimize-autoloader --no-dev
-
 # Права на файлы
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache

@@ -1,29 +1,30 @@
 #!/bin/bash
 
-# Проверяем, существует ли .env, если нет — копируем из .env.example
-if [ ! -f app/.env ]; then
-    echo "Копирую .env.example в .env..."
-    cp app/.env.example app/.env
+# Проверяем, существует ли .env файл
+if [ ! -f /var/www/html/.env ]; then
+    echo "Копирую .env.example в .env"
+    cp /var/www/html/.env.example /var/www/html/.env
 fi
 
-# Запускаем Docker-контейнеры
-echo "Запускаю Docker-контейнеры..."
-docker-compose up -d --build
+# Устанавливаем зависимости Composer, если папка vendor отсутствует
+if [ ! -d /var/www/html/vendor ]; then
+    echo "Устанавливаю зависимости Composer"
+    composer install --optimize-autoloader
+fi
 
-# Устанавливаем зависимости Composer
-echo "Устанавливаю зависимости Composer..."
-docker-compose exec -T app composer install
+# Генерируем ключ приложения, если он еще не сгенерирован
+if ! grep -q "APP_KEY=.\+" /var/www/html/.env; then
+    echo "Генерирую APP_KEY"
+    php artisan key:generate
+fi
 
-# Генерируем ключ приложения
-echo "Генерирую APP_KEY..."
-docker-compose exec -T app php artisan key:generate
+# Запускаем миграции
+echo "Запускаю миграции"
+php artisan migrate --force
 
-# Выполняем миграции
-echo "Выполняю миграции..."
-docker-compose exec -T app php artisan migrate --force
+# Генерируем документацию Scribe
+echo "Генерирую документацию API"
+php artisan scribe:generate
 
-# Генерируем документацию API с помощью Scribe
-echo "Генерирую документацию API..."
-docker-compose exec -T app php artisan scribe:generate
-
-echo "Проект успешно настроен! Документация API: http://localhost:8000/docs"
+# Запускаем PHP-FPM
+exec php-fpm
