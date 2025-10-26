@@ -10,3 +10,5 @@
    git clone <repository-url>
    cd menstrual-tracker
    docker-compose up -d --build
+## Документация
+http://localhost:8000/docs

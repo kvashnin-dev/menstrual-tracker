@@ -1,20 +1,29 @@
 #!/bin/bash
 
-# Проверяем, существует ли .env файл
-if [ ! -f /var/www/html/.env ]; then
-    echo "Копирую .env.example в .env"
-    cp /var/www/html/.env.example /var/www/html/.env
+# Проверяем, существует ли .env, если нет — копируем из .env.example
+if [ ! -f app/.env ]; then
+    echo "Копирую .env.example в .env..."
+    cp app/.env.example app/.env
 fi
 
-# Генерируем ключ приложения, если он еще не сгенерирован
-if ! grep -q "APP_KEY=.\+" /var/www/html/.env; then
-    echo "Генерирую APP_KEY"
-    php artisan key:generate
-fi
+# Запускаем Docker-контейнеры
+echo "Запускаю Docker-контейнеры..."
+docker-compose up -d --build
 
-# Запускаем миграции
-echo "Запускаю миграции"
-php artisan migrate --force
+# Устанавливаем зависимости Composer
+echo "Устанавливаю зависимости Composer..."
+docker-compose exec -T app composer install
 
-# Запускаем PHP-FPM
-exec php-fpm
+# Генерируем ключ приложения
+echo "Генерирую APP_KEY..."
+docker-compose exec -T app php artisan key:generate
+
+# Выполняем миграции
+echo "Выполняю миграции..."
+docker-compose exec -T app php artisan migrate --force
+
+# Генерируем документацию API с помощью Scribe
+echo "Генерирую документацию API..."
+docker-compose exec -T app php artisan scribe:generate
+
+echo "Проект успешно настроен! Документация API: http://localhost:8000/docs"
