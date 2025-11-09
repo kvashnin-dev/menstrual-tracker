@@ -58,13 +58,7 @@ endpoints:
         status: 201
         content: |-
           {
-              "user": {
-                  "id": 1,
-                  "email": "test@example.com",
-                  "created_at": "2025-10-26T21:05:59.000000Z",
-                  "updated_at": "2025-10-26T21:05:59.000000Z"
-              },
-              "token": "1|random-token-string"
+              "message": "User registered. Check email for verification."
           }
         headers: []
         description: ''
@@ -143,8 +137,7 @@ endpoints:
               "user": {
                   "id": 1,
                   "email": "test@example.com",
-                  "created_at": "2025-10-26T21:05:59.000000Z",
-                  "updated_at": "2025-10-26T21:05:59.000000Z"
+                  "email_verified_at": "2025-11-09T10:00:00.000000Z"
               },
               "token": "2|random-token-string"
           }
@@ -206,6 +199,146 @@ endpoints:
           {
               "message": "Unauthenticated"
           }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/email/verify/{id}/{hash}'
+    metadata:
+      custom: []
+      groupName: Authentication
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Verify email address'
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the user.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      hash:
+        custom: []
+        name: hash
+        description: 'The verification hash.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: consequatur
+      hash: consequatur
+    queryParameters:
+      expires:
+        custom: []
+        name: expires
+        description: 'The expiration timestamp.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      signature:
+        custom: []
+        name: signature
+        description: 'The URL signature.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      expires: consequatur
+      signature: consequatur
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"message": "Email verified successfully"}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 200
+        content: '{"message": "Email already verified"}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 400
+        content: '{"message": "Invalid verification link"}'
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/email/resend
+    metadata:
+      custom: []
+      groupName: Authentication
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Resend verification email'
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: '{"message": "Verification link sent to logs"}'
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 429
+        content: '{"message": "Too Many Attempts"}'
         headers: []
         description: ''
     responseFields: []

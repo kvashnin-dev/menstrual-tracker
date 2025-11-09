@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\LogEmailVerificationNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -19,13 +20,7 @@ class AuthController extends Controller
      * @bodyParam email string required Email пользователя. Example: test@example.com
      * @bodyParam password string required Пароль (мин. 8 символов). Example: password123
      * @response 201 {
-     *     "user": {
-     *         "id": 1,
-     *         "email": "test@example.com",
-     *         "created_at": "2025-10-26T21:05:59.000000Z",
-     *         "updated_at": "2025-10-26T21:05:59.000000Z"
-     *     },
-     *     "token": "1|random-token-string"
+     *     "message": "User registered. Check email for verification."
      * }
      * @response 422 {
      *     "errors": {
@@ -34,17 +29,15 @@ class AuthController extends Controller
      *     }
      * }
      */
-    public function register(Request $request): JsonResponse
+    public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email:rfc,dns|unique:users,email',
             'password' => 'required|min:8',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $user = User::create([
@@ -52,11 +45,11 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Используем кастомное уведомление
+        $user->notify(new LogEmailVerificationNotification());
 
         return response()->json([
-            'user' => $user,
-            'token' => $token,
+            'message' => 'User registered. Check logs: docker-compose exec app tail -f storage/logs/laravel.log',
         ], 201);
     }
 
@@ -70,8 +63,7 @@ class AuthController extends Controller
      *     "user": {
      *         "id": 1,
      *         "email": "test@example.com",
-     *         "created_at": "2025-10-26T21:05:59.000000Z",
-     *         "updated_at": "2025-10-26T21:05:59.000000Z"
+     *         "email_verified_at": "2025-11-09T10:00:00.000000Z"
      *     },
      *     "token": "2|random-token-string"
      * }
@@ -98,6 +90,12 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Invalid credentials',
             ], 401);
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Please verify your email before logging in.',
+            ], 403);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
