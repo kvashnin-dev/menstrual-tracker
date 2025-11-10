@@ -58,7 +58,9 @@ endpoints:
         status: 201
         content: |-
           {
-              "message": "User registered. Check email for verification."
+              "message": "User registered. Please verify your email.",
+              "verification_url": "http://localhost:8000/api/email/verify/1/abc123?expires=...&signature=...",
+              "expires_in": "24 hours"
           }
         headers: []
         description: ''
@@ -152,6 +154,15 @@ endpoints:
           }
         headers: []
         description: ''
+      -
+        custom: []
+        status: 403
+        content: |-
+          {
+              "message": "Please verify your email before logging in."
+          }
+        headers: []
+        description: ''
     responseFields: []
     auth: []
     controller: null
@@ -168,10 +179,10 @@ endpoints:
       groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: |-
-        Verify email address
-        После регистрации строка с url нужным для подтверждения падает в storage/logs/laravel.log
-      description: ''
+      title: 'Подтверждение email'
+      description: |-
+        После регистрации ссылка приходит в ответе API.
+        Открывается в браузере или WebView.
       authenticated: false
       deprecated: false
     headers:
@@ -181,7 +192,7 @@ endpoints:
       id:
         custom: []
         name: id
-        description: 'The ID of the user.'
+        description: 'ID пользователя.'
         required: true
         example: consequatur
         type: string
@@ -192,7 +203,7 @@ endpoints:
       hash:
         custom: []
         name: hash
-        description: 'The verification hash.'
+        description: 'SHA1-хеш email.'
         required: true
         example: consequatur
         type: string
@@ -207,7 +218,7 @@ endpoints:
       expires:
         custom: []
         name: expires
-        description: 'The expiration timestamp.'
+        description: 'Время жизни (timestamp).'
         required: true
         example: consequatur
         type: string
@@ -218,7 +229,7 @@ endpoints:
       signature:
         custom: []
         name: signature
-        description: 'The URL signature.'
+        description: 'Подпись URL.'
         required: true
         example: consequatur
         type: string
@@ -236,19 +247,38 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"message": "Email verified successfully"}'
+        content: |-
+          {
+              "message": "Email verified successfully! You can now log in.",
+              "user_id": 1
+          }
         headers: []
         description: ''
       -
         custom: []
         status: 200
-        content: '{"message": "Email already verified"}'
+        content: |-
+          {
+              "message": "Email already verified"
+          }
         headers: []
         description: ''
       -
         custom: []
         status: 400
-        content: '{"message": "Invalid verification link"}'
+        content: |-
+          {
+              "message": "Invalid or expired verification link"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 400
+        content: |-
+          {
+              "message": "Invalid verification hash"
+          }
         headers: []
         description: ''
     responseFields: []
@@ -267,7 +297,7 @@ endpoints:
       groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: 'Resend verification email'
+      title: 'Повторная отправка ссылки на верификацию'
       description: ''
       authenticated: true
       deprecated: false
@@ -285,13 +315,30 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '{"message": "Verification link sent to logs"}'
+        content: |-
+          {
+              "message": "Verification link generated",
+              "verification_url": "http://localhost:8000/api/email/verify/1/abc123?expires=...&signature=...",
+              "expires_in": "24 hours"
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+              "message": "Email already verified"
+          }
         headers: []
         description: ''
       -
         custom: []
         status: 429
-        content: '{"message": "Too Many Attempts"}'
+        content: |-
+          {
+              "message": "Too Many Attempts"
+          }
         headers: []
         description: ''
     responseFields: []

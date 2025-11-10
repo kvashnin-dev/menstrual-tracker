@@ -78,11 +78,10 @@
                                 <a href="#authentication-POSTapi-login">Аутентификация пользователя</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="authentication-GETapi-email-verify--id---hash-">
-                                <a href="#authentication-GETapi-email-verify--id---hash-">Verify email address
-После регистрации строка с url нужным для подтверждения падает в storage/logs/laravel.log</a>
+                                <a href="#authentication-GETapi-email-verify--id---hash-">Подтверждение email</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="authentication-POSTapi-email-resend">
-                                <a href="#authentication-POSTapi-email-resend">Resend verification email</a>
+                                <a href="#authentication-POSTapi-email-resend">Повторная отправка ссылки на верификацию</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="authentication-POSTapi-logout">
                                 <a href="#authentication-POSTapi-logout">Выход из системы</a>
@@ -114,7 +113,7 @@
     </ul>
 
     <ul class="toc-footer" id="last-updated">
-        <li>Last updated: November 9, 2025</li>
+        <li>Last updated: November 10, 2025</li>
     </ul>
 </div>
 
@@ -190,7 +189,9 @@ fetch(url, {
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;User registered. Check email for verification.&quot;
+    &quot;message&quot;: &quot;User registered. Please verify your email.&quot;,
+    &quot;verification_url&quot;: &quot;http://localhost:8000/api/email/verify/1/abc123?expires=...&amp;signature=...&quot;,
+    &quot;expires_in&quot;: &quot;24 hours&quot;
 }</code>
  </pre>
             <blockquote>
@@ -378,6 +379,15 @@ fetch(url, {
     &quot;message&quot;: &quot;Invalid credentials&quot;
 }</code>
  </pre>
+            <blockquote>
+            <p>Example response (403):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Please verify your email before logging in.&quot;
+}</code>
+ </pre>
     </span>
 <span id="execution-results-POSTapi-login" hidden>
     <blockquote>Received response<span
@@ -477,13 +487,13 @@ You can check the Dev Tools console for debugging information.</code></pre>
         </div>
         </form>
 
-                    <h2 id="authentication-GETapi-email-verify--id---hash-">Verify email address
-После регистрации строка с url нужным для подтверждения падает в storage/logs/laravel.log</h2>
+                    <h2 id="authentication-GETapi-email-verify--id---hash-">Подтверждение email</h2>
 
 <p>
 </p>
 
-
+<p>После регистрации ссылка приходит в ответе API.
+Открывается в браузере или WebView.</p>
 
 <span id="example-requests-GETapi-email-verify--id---hash-">
 <blockquote>Example request:</blockquote>
@@ -527,7 +537,8 @@ fetch(url, {
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Email verified successfully&quot;
+    &quot;message&quot;: &quot;Email verified successfully! You can now log in.&quot;,
+    &quot;user_id&quot;: 1
 }</code>
  </pre>
             <blockquote>
@@ -545,7 +556,16 @@ fetch(url, {
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Invalid verification link&quot;
+    &quot;message&quot;: &quot;Invalid or expired verification link&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (400):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Invalid verification hash&quot;
 }</code>
  </pre>
     </span>
@@ -631,7 +651,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value="consequatur"
                data-component="url">
     <br>
-<p>The ID of the user. Example: <code>consequatur</code></p>
+<p>ID пользователя. Example: <code>consequatur</code></p>
             </div>
                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>hash</code></b>&nbsp;&nbsp;
@@ -643,7 +663,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value="consequatur"
                data-component="url">
     <br>
-<p>The verification hash. Example: <code>consequatur</code></p>
+<p>SHA1-хеш email. Example: <code>consequatur</code></p>
             </div>
                         <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
                                     <div style="padding-left: 28px; clear: unset;">
@@ -656,7 +676,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value="consequatur"
                data-component="query">
     <br>
-<p>The expiration timestamp. Example: <code>consequatur</code></p>
+<p>Время жизни (timestamp). Example: <code>consequatur</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>signature</code></b>&nbsp;&nbsp;
@@ -668,11 +688,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value="consequatur"
                data-component="query">
     <br>
-<p>The URL signature. Example: <code>consequatur</code></p>
+<p>Подпись URL. Example: <code>consequatur</code></p>
             </div>
                 </form>
 
-                    <h2 id="authentication-POSTapi-email-resend">Resend verification email</h2>
+                    <h2 id="authentication-POSTapi-email-resend">Повторная отправка ссылки на верификацию</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -715,7 +735,18 @@ fetch(url, {
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Verification link sent to logs&quot;
+    &quot;message&quot;: &quot;Verification link generated&quot;,
+    &quot;verification_url&quot;: &quot;http://localhost:8000/api/email/verify/1/abc123?expires=...&amp;signature=...&quot;,
+    &quot;expires_in&quot;: &quot;24 hours&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Email already verified&quot;
 }</code>
  </pre>
             <blockquote>
@@ -952,7 +983,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"start_date\": \"2025-11-09T17:46:17\",
+    \"start_date\": \"2025-11-10T09:13:53\",
     \"end_date\": \"2106-12-09\"
 }"
 </code></pre></div>
@@ -976,7 +1007,7 @@ const headers = {
 };
 
 let body = {
-    "start_date": "2025-11-09T17:46:17",
+    "start_date": "2025-11-10T09:13:53",
     "end_date": "2106-12-09"
 };
 
@@ -1117,10 +1148,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="start_date"                data-endpoint="GETapi-calendar"
-               value="2025-11-09T17:46:17"
+               value="2025-11-10T09:13:53"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2025-11-09T17:46:17</code></p>
+<p>Must be a valid date. Example: <code>2025-11-10T09:13:53</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>end_date</code></b>&nbsp;&nbsp;

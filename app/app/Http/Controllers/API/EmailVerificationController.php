@@ -12,28 +12,38 @@ use Illuminate\Support\Facades\URL;
 class EmailVerificationController extends Controller
 {
     /**
-     * Verify email address
-     * После регистрации строка с url нужным для подтверждения падает в storage/logs/laravel.log
+     * Подтверждение email
+     *
+     * После регистрации ссылка приходит в ответе API.
+     * Открывается в браузере или WebView.
      *
      * @group Authentication
-     * @urlParam id required The ID of the user.
-     * @urlParam hash required The verification hash.
-     * @queryParam expires required The expiration timestamp.
-     * @queryParam signature required The URL signature.
-     * @response 200 {"message": "Email verified successfully"}
-     * @response 400 {"message": "Invalid verification link"}
-     * @response 200 {"message": "Email already verified"}
+     * @urlParam id required ID пользователя.
+     * @urlParam hash required SHA1-хеш email.
+     * @queryParam expires required Время жизни (timestamp).
+     * @queryParam signature required Подпись URL.
+     * @response 200 {
+     *     "message": "Email verified successfully! You can now log in.",
+     *     "user_id": 1
+     * }
+     * @response 400 {
+     *     "message": "Invalid or expired verification link"
+     * }
+     * @response 400 {
+     *     "message": "Invalid verification hash"
+     * }
+     * @response 200 {
+     *     "message": "Email already verified"
+     * }
      */
     public function verify(Request $request, $id, $hash): JsonResponse
     {
         $user = User::findOrFail($id);
 
-        // Проверка подписи (защита от подделки)
         if (!URL::hasValidSignature($request)) {
             return response()->json(['message' => 'Invalid or expired verification link'], 400);
         }
 
-        // Проверка хеша
         if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
             return response()->json(['message' => 'Invalid verification hash'], 400);
         }
@@ -45,16 +55,28 @@ class EmailVerificationController extends Controller
         $user->markEmailAsVerified();
         event(new Verified($user));
 
-        return response()->json(['message' => 'Email verified successfully! You can now log in.'], 200);
+        return response()->json([
+            'message' => 'Email verified successfully! You can now log in.',
+            'user_id' => $user->id
+        ], 200);
     }
 
     /**
-     * Resend verification email
+     * Повторная отправка ссылки на верификацию
      *
      * @group Authentication
      * @authenticated
-     * @response 200 {"message": "Verification link sent to logs"}
-     * @response 429 {"message": "Too Many Attempts"}
+     * @response 200 {
+     *     "message": "Verification link generated",
+     *     "verification_url": "http://localhost:8000/api/email/verify/1/abc123?expires=...&signature=...",
+     *     "expires_in": "24 hours"
+     * }
+     * @response 200 {
+     *     "message": "Email already verified"
+     * }
+     * @response 429 {
+     *     "message": "Too Many Attempts"
+     * }
      */
     public function resend(Request $request): JsonResponse
     {
@@ -62,8 +84,16 @@ class EmailVerificationController extends Controller
             return response()->json(['message' => 'Email already verified'], 200);
         }
 
-        $request->user()->sendEmailVerificationNotification();
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addHours(24),
+            ['id' => $request->user()->id, 'hash' => sha1($request->user()->getEmailForVerification())]
+        );
 
-        return response()->json(['message' => 'Verification link sent to logs'], 200);
+        return response()->json([
+            'message' => 'Verification link generated',
+            'verification_url' => $verificationUrl,
+            'expires_in' => '24 hours'
+        ], 200);
     }
 }

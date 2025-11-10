@@ -8,6 +8,7 @@ use App\Notifications\LogEmailVerificationNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -19,7 +20,9 @@ class AuthController extends Controller
      * @bodyParam email string required Email пользователя. Example: test@example.com
      * @bodyParam password string required Пароль (мин. 8 символов). Example: password123
      * @response 201 {
-     *     "message": "User registered. Check email for verification."
+     *     "message": "User registered. Please verify your email.",
+     *     "verification_url": "http://localhost:8000/api/email/verify/1/abc123?expires=...&signature=...",
+     *     "expires_in": "24 hours"
      * }
      * @response 422 {
      *     "errors": {
@@ -44,11 +47,17 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Используем кастомное уведомление
-        $user->notify(new LogEmailVerificationNotification());
+        // Генерируем подписанную ссылку
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addHours(24),
+            ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
+        );
 
         return response()->json([
-            'message' => 'User registered. Check logs: docker-compose exec app tail -f storage/logs/laravel.log',
+            'message' => 'User registered. Please verify your email.',
+            'verification_url' => $verificationUrl,
+            'expires_in' => '24 hours'
         ], 201);
     }
 
@@ -68,6 +77,9 @@ class AuthController extends Controller
      * }
      * @response 401 {
      *     "message": "Invalid credentials"
+     * }
+     * @response 403 {
+     *     "message": "Please verify your email before logging in."
      * }
      */
     public function login(Request $request): JsonResponse
