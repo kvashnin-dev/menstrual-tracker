@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_pregnant')->default(false)->after('is_sexually_active');
+            $table->boolean('is_pregnant')->default(false);
         });
     }
 
