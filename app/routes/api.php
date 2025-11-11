@@ -27,3 +27,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('calendar', [CalendarController::class, 'store']);
     Route::get('predictions', [CalendarController::class, 'predictions']);
 });
+
+use App\Http\Controllers\API\StatisticsController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/statistics', [StatisticsController::class, 'index']);
+});

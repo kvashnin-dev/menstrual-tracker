@@ -55,7 +55,7 @@ endpoints:
         name: start_date
         description: 'Must be a valid date.'
         required: true
-        example: '2025-11-10T09:13:53'
+        example: '2025-11-11T08:53:13'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -66,15 +66,15 @@ endpoints:
         name: end_date
         description: 'Must be a valid date. Must be a date after or equal to <code>start_date</code>.'
         required: true
-        example: '2106-12-09'
+        example: '2106-12-10'
         type: string
         enumValues: []
         exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      start_date: '2025-11-10T09:13:53'
-      end_date: '2106-12-09'
+      start_date: '2025-11-11T08:53:13'
+      end_date: '2106-12-10'
     fileParameters: []
     responses:
       -
