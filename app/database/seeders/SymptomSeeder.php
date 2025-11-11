@@ -3,26 +3,22 @@
 namespace Database\Seeders;
 
 use App\Models\Symptom;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class SymptomSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $symptoms = [
-            ['key' => 'period', 'name_ru' => 'Месячные', 'icon' => 'drop', 'color' => '#ef4444'],
-            ['key' => 'headache', 'name_ru' => 'Голова болит', 'icon' => 'head', 'color' => '#f59e0b'],
-            ['key' => 'cramps', 'name_ru' => 'Спазмы', 'icon' => 'pain', 'color' => '#ec4899'],
-            ['key' => 'happy', 'name_ru' => 'Весело', 'icon' => 'smile', 'color' => '#10b981'],
-            ['key' => 'sad', 'name_ru' => 'Грустно', 'icon' => 'frown', 'color' => '#6366f1'],
+            ['key' => 'cramps',     'name_ru' => 'Спазмы',      'name_en' => 'Cramps',     'icon' => 'droplet', 'color' => '#ef4444'],
+            ['key' => 'headache',   'name_ru' => 'Головная боль', 'name_en' => 'Headache',   'icon' => 'head',    'color' => '#f59e0b'],
+            ['key' => 'sex',        'name_ru' => 'Секс',        'name_en' => 'Sex',        'icon' => 'heart',   'color' => '#ec4899'],
+            ['key' => 'nausea',     'name_ru' => 'Тошнота',     'name_en' => 'Nausea',     'icon' => 'stomach', 'color' => '#10b981'],
+            ['key' => 'backache',   'name_ru' => 'Боль в спине','name_en' => 'Backache',   'icon' => 'back',    'color' => '#8b5cf6'],
         ];
 
         foreach ($symptoms as $s) {
-            Symptom::create($s);
+            Symptom::firstOrCreate(['key' => $s['key']], $s);
         }
     }
 }

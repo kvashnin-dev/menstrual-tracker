@@ -94,13 +94,23 @@
                 </li>
                                     <ul id="tocify-subheader-calendar" class="tocify-subheader">
                                                     <li class="tocify-item level-2" data-unique="calendar-GETapi-calendar">
-                                <a href="#calendar-GETapi-calendar">Получить календарь за диапазон дат</a>
+                                <a href="#calendar-GETapi-calendar">Получить календарь (всё: месячные, прогнозы, овуляция, симптомы)</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="calendar-POSTapi-calendar">
-                                <a href="#calendar-POSTapi-calendar">Добавить или обновить день</a>
+                                <a href="#calendar-POSTapi-calendar">Обновить день → пересчитать ВЕСЬ календарь</a>
                             </li>
-                                                                                <li class="tocify-item level-2" data-unique="calendar-GETapi-predictions">
-                                <a href="#calendar-GETapi-predictions">Получить прогнозы месячных</a>
+                                                                        </ul>
+                            </ul>
+                    <ul id="tocify-header-profile" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="profile">
+                    <a href="#profile">Profile</a>
+                </li>
+                                    <ul id="tocify-subheader-profile" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="profile-GETapi-profile">
+                                <a href="#profile-GETapi-profile">Получить профиль пользователя</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="profile-PATCHapi-profile">
+                                <a href="#profile-PATCHapi-profile">Обновить профиль (беременность)</a>
                             </li>
                                                                         </ul>
                             </ul>
@@ -164,7 +174,9 @@ You can switch the language used with the tabs at the top right (or from the nav
     --header "Accept: application/json" \
     --data "{
     \"email\": \"test@example.com\",
-    \"password\": \"password123\"
+    \"password\": \"password123\",
+    \"is_pregnant\": true,
+    \"due_date\": \"2026-06-15\'\"
 }"
 </code></pre></div>
 
@@ -181,7 +193,9 @@ const headers = {
 
 let body = {
     "email": "test@example.com",
-    "password": "password123"
+    "password": "password123",
+    "is_pregnant": true,
+    "due_date": "2026-06-15'"
 };
 
 fetch(url, {
@@ -316,6 +330,40 @@ You can check the Dev Tools console for debugging information.</code></pre>
                data-component="body">
     <br>
 <p>Пароль (мин. 8 символов). Example: <code>password123</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_pregnant</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="POSTapi-register" style="display: none">
+            <input type="radio" name="is_pregnant"
+                   value="true"
+                   data-endpoint="POSTapi-register"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="POSTapi-register" style="display: none">
+            <input type="radio" name="is_pregnant"
+                   value="false"
+                   data-endpoint="POSTapi-register"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>optional Беременна ли вы сейчас? Example: <code>true</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>due_date</code></b>&nbsp;&nbsp;
+<small>date</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="due_date"                data-endpoint="POSTapi-register"
+               value="2026-06-15'"
+               data-component="body">
+    <br>
+<p>optional Ожидаемая дата родов. Example: <code>2026-06-15'</code></p>
         </div>
         </form>
 
@@ -975,7 +1023,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
     
 
-                                <h2 id="calendar-GETapi-calendar">Получить календарь за диапазон дат</h2>
+                                <h2 id="calendar-GETapi-calendar">Получить календарь (всё: месячные, прогнозы, овуляция, симптомы)</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -989,11 +1037,11 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost:8000/api/calendar?start_date=2025-11-01&amp;end_date=2025-11-30" \
+    --get "http://localhost:8000/api/calendar?start_date=2025-11-01&amp;end_date=2026-02-28" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"start_date\": \"2025-11-11T08:53:13\",
+    \"start_date\": \"2025-11-11T10:11:52\",
     \"end_date\": \"2106-12-10\"
 }"
 </code></pre></div>
@@ -1006,7 +1054,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 const params = {
     "start_date": "2025-11-01",
-    "end_date": "2025-11-30",
+    "end_date": "2026-02-28",
 };
 Object.keys(params)
     .forEach(key =&gt; url.searchParams.append(key, params[key]));
@@ -1017,7 +1065,7 @@ const headers = {
 };
 
 let body = {
-    "start_date": "2025-11-11T08:53:13",
+    "start_date": "2025-11-11T10:11:52",
     "end_date": "2106-12-10"
 };
 
@@ -1039,16 +1087,14 @@ fetch(url, {
     {
         &quot;date&quot;: &quot;2025-11-09&quot;,
         &quot;is_period&quot;: true,
-        &quot;predicted&quot;: false,
+        &quot;is_predicted&quot;: false,
+        &quot;is_ovulation&quot;: false,
+        &quot;is_fertile&quot;: false,
         &quot;note&quot;: &quot;День 1&quot;,
         &quot;symptoms&quot;: [
-            {
-                &quot;id&quot;: 1,
-                &quot;key&quot;: &quot;period&quot;,
-                &quot;name&quot;: &quot;Месячные&quot;,
-                &quot;icon&quot;: &quot;drop&quot;,
-                &quot;color&quot;: &quot;#ef4444&quot;
-            }
+            &quot;period&quot;,
+            &quot;cramps&quot;,
+            &quot;sex&quot;
         ]
     }
 ]</code>
@@ -1136,7 +1182,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value="2025-11-01"
                data-component="query">
     <br>
-<p>date Начальная дата (Y-m-d). Example: <code>2025-11-01</code></p>
+<p>date Начало (Y-m-d). Example: <code>2025-11-01</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>end_date</code></b>&nbsp;&nbsp;
@@ -1145,10 +1191,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="end_date"                data-endpoint="GETapi-calendar"
-               value="2025-11-30"
+               value="2026-02-28"
                data-component="query">
     <br>
-<p>date Конечная дата (Y-m-d). Example: <code>2025-11-30</code></p>
+<p>date Конец (Y-m-d). Example: <code>2026-02-28</code></p>
             </div>
                         <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
         <div style=" padding-left: 28px;  clear: unset;">
@@ -1158,10 +1204,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="start_date"                data-endpoint="GETapi-calendar"
-               value="2025-11-11T08:53:13"
+               value="2025-11-11T10:11:52"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2025-11-11T08:53:13</code></p>
+<p>Must be a valid date. Example: <code>2025-11-11T10:11:52</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>end_date</code></b>&nbsp;&nbsp;
@@ -1177,7 +1223,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
         </div>
         </form>
 
-                    <h2 id="calendar-POSTapi-calendar">Добавить или обновить день</h2>
+                    <h2 id="calendar-POSTapi-calendar">Обновить день → пересчитать ВЕСЬ календарь</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -1196,12 +1242,12 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Accept: application/json" \
     --data "{
     \"date\": \"2025-11-09\",
+    \"is_period\": true,
     \"symptoms\": [
-        \"period\",
+        \"sex\",
         \"cramps\"
     ],
-    \"note\": \"День 1\",
-    \"is_period\": true
+    \"note\": \"День 1\"
 }"
 </code></pre></div>
 
@@ -1218,12 +1264,12 @@ const headers = {
 
 let body = {
     "date": "2025-11-09",
+    "is_period": true,
     "symptoms": [
-        "period",
+        "sex",
         "cramps"
     ],
-    "note": "День 1",
-    "is_period": true
+    "note": "День 1"
 };
 
 fetch(url, {
@@ -1235,27 +1281,7 @@ fetch(url, {
 </span>
 
 <span id="example-responses-POSTapi-calendar">
-            <blockquote>
-            <p>Example response (201):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{ ...день с симптомами... }</code>
- </pre>
-            <blockquote>
-            <p>Example response (422):</p>
-        </blockquote>
-                <pre>
-
-<code class="language-json" style="max-height: 300px;">{
-    &quot;errors&quot;: {
-        &quot;date&quot;: [
-            &quot;The date field is required.&quot;
-        ]
-    }
-}</code>
- </pre>
-    </span>
+</span>
 <span id="execution-results-POSTapi-calendar" hidden>
     <blockquote>Received response<span
                 id="execution-response-status-POSTapi-calendar"></span>:
@@ -1338,33 +1364,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value="2025-11-09"
                data-component="body">
     <br>
-<p>Дата (Y-m-d). Example: <code>2025-11-09</code></p>
-        </div>
-                <div style=" padding-left: 28px;  clear: unset;">
-            <b style="line-height: 2;"><code>symptoms</code></b>&nbsp;&nbsp;
-<small>string[]</small>&nbsp;
-<i>optional</i> &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="symptoms[0]"                data-endpoint="POSTapi-calendar"
-               data-component="body">
-        <input type="text" style="display: none"
-               name="symptoms[1]"                data-endpoint="POSTapi-calendar"
-               data-component="body">
-    <br>
-<p>optional Массив ключей симптомов.</p>
-        </div>
-                <div style=" padding-left: 28px;  clear: unset;">
-            <b style="line-height: 2;"><code>note</code></b>&nbsp;&nbsp;
-<small>string</small>&nbsp;
-<i>optional</i> &nbsp;
- &nbsp;
-                <input type="text" style="display: none"
-                              name="note"                data-endpoint="POSTapi-calendar"
-               value="День 1"
-               data-component="body">
-    <br>
-<p>optional Заметка дня. Example: <code>День 1</code></p>
+<p>Дата. Example: <code>2025-11-09</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>is_period</code></b>&nbsp;&nbsp;
@@ -1386,11 +1386,41 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>optional Подтверждённые месячные. Example: <code>true</code></p>
+<p>optional Месячные. Example: <code>true</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>symptoms</code></b>&nbsp;&nbsp;
+<small>string[]</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="symptoms[0]"                data-endpoint="POSTapi-calendar"
+               data-component="body">
+        <input type="text" style="display: none"
+               name="symptoms[1]"                data-endpoint="POSTapi-calendar"
+               data-component="body">
+    <br>
+<p>optional Симптомы.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>note</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="note"                data-endpoint="POSTapi-calendar"
+               value="День 1"
+               data-component="body">
+    <br>
+<p>optional Заметка. Example: <code>День 1</code></p>
         </div>
         </form>
 
-                    <h2 id="calendar-GETapi-predictions">Получить прогнозы месячных</h2>
+                <h1 id="profile">Profile</h1>
+
+    
+
+                                <h2 id="profile-GETapi-profile">Получить профиль пользователя</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -1398,20 +1428,20 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 
 
-<span id="example-requests-GETapi-predictions">
+<span id="example-requests-GETapi-profile">
 <blockquote>Example request:</blockquote>
 
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost:8000/api/predictions" \
+    --get "http://localhost:8000/api/profile" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json"</code></pre></div>
 
 
 <div class="javascript-example">
     <pre><code class="language-javascript">const url = new URL(
-    "http://localhost:8000/api/predictions"
+    "http://localhost:8000/api/profile"
 );
 
 const headers = {
@@ -1426,55 +1456,56 @@ fetch(url, {
 
 </span>
 
-<span id="example-responses-GETapi-predictions">
+<span id="example-responses-GETapi-profile">
             <blockquote>
             <p>Example response (200):</p>
         </blockquote>
                 <pre>
 
-<code class="language-json" style="max-height: 300px;">[
-    &quot;2025-12-07&quot;,
-    &quot;2026-01-04&quot;
-]</code>
+<code class="language-json" style="max-height: 300px;">{
+    &quot;email&quot;: &quot;user@example.com&quot;,
+    &quot;is_pregnant&quot;: true,
+    &quot;due_date&quot;: &quot;2026-06-15&quot;
+}</code>
  </pre>
     </span>
-<span id="execution-results-GETapi-predictions" hidden>
+<span id="execution-results-GETapi-profile" hidden>
     <blockquote>Received response<span
-                id="execution-response-status-GETapi-predictions"></span>:
+                id="execution-response-status-GETapi-profile"></span>:
     </blockquote>
-    <pre class="json"><code id="execution-response-content-GETapi-predictions"
+    <pre class="json"><code id="execution-response-content-GETapi-profile"
       data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
 </span>
-<span id="execution-error-GETapi-predictions" hidden>
+<span id="execution-error-GETapi-profile" hidden>
     <blockquote>Request failed with error:</blockquote>
-    <pre><code id="execution-error-message-GETapi-predictions">
+    <pre><code id="execution-error-message-GETapi-profile">
 
 Tip: Check that you&#039;re properly connected to the network.
 If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
 You can check the Dev Tools console for debugging information.</code></pre>
 </span>
-<form id="form-GETapi-predictions" data-method="GET"
-      data-path="api/predictions"
+<form id="form-GETapi-profile" data-method="GET"
+      data-path="api/profile"
       data-authed="1"
       data-hasfiles="0"
       data-isarraybody="0"
       autocomplete="off"
-      onsubmit="event.preventDefault(); executeTryOut('GETapi-predictions', this);">
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-profile', this);">
     <h3>
         Request&nbsp;&nbsp;&nbsp;
                     <button type="button"
                     style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-tryout-GETapi-predictions"
-                    onclick="tryItOut('GETapi-predictions');">Try it out ⚡
+                    id="btn-tryout-GETapi-profile"
+                    onclick="tryItOut('GETapi-profile');">Try it out ⚡
             </button>
             <button type="button"
                     style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-canceltryout-GETapi-predictions"
-                    onclick="cancelTryOut('GETapi-predictions');" hidden>Cancel 🛑
+                    id="btn-canceltryout-GETapi-profile"
+                    onclick="cancelTryOut('GETapi-profile');" hidden>Cancel 🛑
             </button>&nbsp;&nbsp;
             <button type="submit"
                     style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
-                    id="btn-executetryout-GETapi-predictions"
+                    id="btn-executetryout-GETapi-profile"
                     data-initial-text="Send Request 💥"
                     data-loading-text="⏱ Sending..."
                     hidden>Send Request 💥
@@ -1482,7 +1513,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             </h3>
             <p>
             <small class="badge badge-green">GET</small>
-            <b><code>api/predictions</code></b>
+            <b><code>api/profile</code></b>
         </p>
                 <h4 class="fancy-heading-panel"><b>Headers</b></h4>
                                 <div style="padding-left: 28px; clear: unset;">
@@ -1491,7 +1522,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
  &nbsp;
                 <input type="text" style="display: none"
-                              name="Content-Type"                data-endpoint="GETapi-predictions"
+                              name="Content-Type"                data-endpoint="GETapi-profile"
                value="application/json"
                data-component="header">
     <br>
@@ -1503,13 +1534,194 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
  &nbsp;
                 <input type="text" style="display: none"
-                              name="Accept"                data-endpoint="GETapi-predictions"
+                              name="Accept"                data-endpoint="GETapi-profile"
                value="application/json"
                data-component="header">
     <br>
 <p>Example: <code>application/json</code></p>
             </div>
                         </form>
+
+                    <h2 id="profile-PATCHapi-profile">Обновить профиль (беременность)</h2>
+
+<p>
+<small class="badge badge-darkred">requires authentication</small>
+</p>
+
+
+
+<span id="example-requests-PATCHapi-profile">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request PATCH \
+    "http://localhost:8000/api/profile" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"is_pregnant\": true,
+    \"due_date\": \"2026-06-15\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/profile"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "is_pregnant": true,
+    "due_date": "2026-06-15"
+};
+
+fetch(url, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-PATCHapi-profile">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Profile updated&quot;,
+    &quot;is_pregnant&quot;: true,
+    &quot;due_date&quot;: &quot;2026-06-15&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;errors&quot;: {
+        &quot;due_date&quot;: [
+            &quot;The due date field must be a valid date.&quot;
+        ]
+    }
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-PATCHapi-profile" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-PATCHapi-profile"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-PATCHapi-profile"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-PATCHapi-profile" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-PATCHapi-profile">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-PATCHapi-profile" data-method="PATCH"
+      data-path="api/profile"
+      data-authed="1"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('PATCHapi-profile', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-PATCHapi-profile"
+                    onclick="tryItOut('PATCHapi-profile');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-PATCHapi-profile"
+                    onclick="cancelTryOut('PATCHapi-profile');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-PATCHapi-profile"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-purple">PATCH</small>
+            <b><code>api/profile</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="PATCHapi-profile"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="PATCHapi-profile"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>is_pregnant</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PATCHapi-profile" style="display: none">
+            <input type="radio" name="is_pregnant"
+                   value="true"
+                   data-endpoint="PATCHapi-profile"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PATCHapi-profile" style="display: none">
+            <input type="radio" name="is_pregnant"
+                   value="false"
+                   data-endpoint="PATCHapi-profile"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>optional Беременна. Example: <code>true</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>due_date</code></b>&nbsp;&nbsp;
+<small>date</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="due_date"                data-endpoint="PATCHapi-profile"
+               value="2026-06-15"
+               data-component="body">
+    <br>
+<p>optional Ожидаемая дата родов (Y-m-d). Example: <code>2026-06-15</code></p>
+        </div>
+        </form>
 
                 <h1 id="statistics">Statistics</h1>
 

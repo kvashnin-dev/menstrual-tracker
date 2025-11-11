@@ -16,8 +16,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'email',
         'password',
-        'is_sexually_active',
         'is_pregnant',
+        'due_date',
     ];
 
     protected $hidden = [
@@ -30,8 +30,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_sexually_active' => 'boolean',
             'is_pregnant' => 'boolean',
+            'due_date' => 'date:Y-m-d',
         ];
     }
 

@@ -6,12 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class CalendarDay extends Model
 {
-    protected $fillable = ['date', 'is_period_predicted', 'is_period_confirmed', 'note'];
+    protected $fillable = [
+        'date', 'is_period_predicted', 'is_period_confirmed',
+        'is_ovulation_predicted', 'note'
+    ];
 
     protected $casts = [
         'date' => 'date',
         'is_period_predicted' => 'boolean',
         'is_period_confirmed' => 'boolean',
+        'is_ovulation_predicted' => 'boolean',
     ];
 
     public function user()

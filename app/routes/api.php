@@ -33,3 +33,11 @@ use App\Http\Controllers\API\StatisticsController;
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/statistics', [StatisticsController::class, 'index']);
 });
+
+// routes/api.php
+use App\Http\Controllers\API\ProfileController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::patch('/profile', [ProfileController::class, 'update']);
+});

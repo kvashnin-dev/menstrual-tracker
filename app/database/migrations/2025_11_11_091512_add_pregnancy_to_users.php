@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_pregnant')->default(false)->after('is_sexually_active');
+            $table->date('due_date')->nullable()->after('is_pregnant');
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['is_pregnant']);
+            $table->dropColumn(['due_date']);
         });
     }
 };

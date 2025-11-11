@@ -14,7 +14,7 @@ endpoints:
       groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: 'Получить календарь за диапазон дат'
+      title: 'Получить календарь (всё: месячные, прогнозы, овуляция, симптомы)'
       description: ''
       authenticated: true
       deprecated: false
@@ -27,7 +27,7 @@ endpoints:
       start_date:
         custom: []
         name: start_date
-        description: 'date Начальная дата (Y-m-d).'
+        description: 'date Начало (Y-m-d).'
         required: true
         example: '2025-11-01'
         type: string
@@ -38,9 +38,9 @@ endpoints:
       end_date:
         custom: []
         name: end_date
-        description: 'date Конечная дата (Y-m-d).'
+        description: 'date Конец (Y-m-d).'
         required: true
-        example: '2025-11-30'
+        example: '2026-02-28'
         type: string
         enumValues: []
         exampleWasSpecified: true
@@ -48,14 +48,14 @@ endpoints:
         deprecated: false
     cleanQueryParameters:
       start_date: '2025-11-01'
-      end_date: '2025-11-30'
+      end_date: '2026-02-28'
     bodyParameters:
       start_date:
         custom: []
         name: start_date
         description: 'Must be a valid date.'
         required: true
-        example: '2025-11-11T08:53:13'
+        example: '2025-11-11T10:11:52'
         type: string
         enumValues: []
         exampleWasSpecified: false
@@ -73,7 +73,7 @@ endpoints:
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      start_date: '2025-11-11T08:53:13'
+      start_date: '2025-11-11T10:11:52'
       end_date: '2106-12-10'
     fileParameters: []
     responses:
@@ -85,17 +85,11 @@ endpoints:
             {
               "date": "2025-11-09",
               "is_period": true,
-              "predicted": false,
+              "is_predicted": false,
+              "is_ovulation": false,
+              "is_fertile": false,
               "note": "День 1",
-              "symptoms": [
-                {
-                  "id": 1,
-                  "key": "period",
-                  "name": "Месячные",
-                  "icon": "drop",
-                  "color": "#ef4444"
-                }
-              ]
+              "symptoms": ["period", "cramps", "sex"]
             }
           ]
         headers: []
@@ -116,7 +110,7 @@ endpoints:
       groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: 'Добавить или обновить день'
+      title: 'Обновить день → пересчитать ВЕСЬ календарь'
       description: ''
       authenticated: true
       deprecated: false
@@ -131,7 +125,7 @@ endpoints:
       date:
         custom: []
         name: date
-        description: 'Дата (Y-m-d).'
+        description: Дата.
         required: true
         example: '2025-11-09'
         type: date
@@ -139,13 +133,24 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
+      is_period:
+        custom: []
+        name: is_period
+        description: 'optional Месячные.'
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
       symptoms:
         custom: []
         name: symptoms
-        description: 'optional Массив ключей симптомов.'
+        description: 'optional Симптомы.'
         required: false
         example:
-          - period
+          - sex
           - cramps
         type: 'string[]'
         enumValues: []
@@ -155,7 +160,7 @@ endpoints:
       note:
         custom: []
         name: note
-        description: 'optional Заметка дня.'
+        description: 'optional Заметка.'
         required: false
         example: 'День 1'
         type: string
@@ -163,79 +168,15 @@ endpoints:
         exampleWasSpecified: true
         nullable: true
         deprecated: false
-      is_period:
-        custom: []
-        name: is_period
-        description: 'optional Подтверждённые месячные.'
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
     cleanBodyParameters:
       date: '2025-11-09'
+      is_period: true
       symptoms:
-        - period
+        - sex
         - cramps
       note: 'День 1'
-      is_period: true
     fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 201
-        content: '{ ...день с симптомами... }'
-        headers: []
-        description: ''
-      -
-        custom: []
-        status: 422
-        content: '{ "errors": { "date": ["The date field is required."] } }'
-        headers: []
-        description: ''
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - GET
-    uri: api/predictions
-    metadata:
-      custom: []
-      groupName: Calendar
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Получить прогнозы месячных'
-      description: ''
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters: []
-    cleanBodyParameters: []
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          [
-            "2025-12-07",
-            "2026-01-04"
-          ]
-        headers: []
-        description: ''
+    responses: []
     responseFields: []
     auth: []
     controller: null

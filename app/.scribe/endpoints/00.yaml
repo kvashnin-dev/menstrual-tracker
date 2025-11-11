@@ -46,9 +46,33 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
+      is_pregnant:
+        custom: []
+        name: is_pregnant
+        description: 'optional Беременна ли вы сейчас?'
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      due_date:
+        custom: []
+        name: due_date
+        description: 'optional Ожидаемая дата родов.'
+        required: false
+        example: "2026-06-15'"
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
     cleanBodyParameters:
       email: test@example.com
       password: password123
+      is_pregnant: true
+      due_date: "2026-06-15'"
     fileParameters: []
     responses:
       -

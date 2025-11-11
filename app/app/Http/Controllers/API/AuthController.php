@@ -19,6 +19,8 @@ class AuthController extends Controller
      * @group Authentication
      * @bodyParam email string required Email пользователя. Example: test@example.com
      * @bodyParam password string required Пароль (мин. 8 символов). Example: password123
+     * @bodyParam is_pregnant boolean optional Беременна ли вы сейчас? Example: false'
+     * @bodyParam due_date date optional Ожидаемая дата родов. Example: 2026-06-15'
      * @response 201 {
      *     "message": "User registered. Please verify your email.",
      *     "verification_url": "http://localhost:8000/api/email/verify/1/abc123?expires=...&signature=...",
@@ -45,6 +47,8 @@ class AuthController extends Controller
         $user = User::create([
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'is_pregnant' => $request->boolean('is_pregnant', false),
+            'due_date' => $request->date('due_date'),
         ]);
 
         // Генерируем подписанную ссылку

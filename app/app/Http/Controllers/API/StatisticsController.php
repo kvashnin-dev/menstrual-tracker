@@ -54,7 +54,7 @@ class StatisticsController extends Controller
         $stats = $this->calculateStats($user);
 
         if ($format === 'pdf') {
-            return $this->generatePdf($stats);
+            return $this->generatePdf($stats, $user); // ← ВОТ ЭТО!
         }
 
         return response()->json($stats);
@@ -79,7 +79,6 @@ class StatisticsController extends Controller
         $periodDays = 0;
 
         foreach ($confirmedDays as $day) {
-            // === Циклы ===
             if (!$inPeriod) {
                 if ($periodStart) {
                     $cycleLengths[] = $periodStart->diffInDays($day->date);
@@ -95,7 +94,6 @@ class StatisticsController extends Controller
                 }
             }
 
-            // === Симптомы ===
             foreach ($day->symptoms as $s) {
                 $symptomFrequency[$s->key] = ($symptomFrequency[$s->key] ?? 0) + 1;
             }
@@ -114,14 +112,22 @@ class StatisticsController extends Controller
         )->count();
         $isPainful = $totalPeriodDays > 0 && ($painfulDays / $totalPeriodDays) > 0.5;
 
+        $sexDays = $confirmedDays->filter(fn($d) =>
+        $d->symptoms->where('key', 'sex')->count()
+        )->count();
+
+        $isSexuallyActive = $sexDays > 0;
+
         return [
             'user_id' => $user->id,
             'email' => $user->email,
             'average_cycle_days' => $avgCycle,
             'average_period_duration' => $avgDuration,
             'is_painful' => $isPainful,
-            'is_sexually_active' => $user->is_sexually_active,
+            'is_sexually_active' => $isSexuallyActive,
+            'sex_days_count' => $sexDays, // ← Добавлено
             'is_pregnant' => $user->is_pregnant,
+            'due_date' => $user->due_date,
             'total_confirmed_period_days' => $totalPeriodDays,
             'symptom_frequency' => collect($symptomFrequency)->map(fn($count) => [
                 'count' => $count,
@@ -134,10 +140,13 @@ class StatisticsController extends Controller
     /**
      * Сгенерировать PDF-отчёт
      */
-    private function generatePdf(array $stats): JsonResponse
+    private function generatePdf(array $stats, $user): JsonResponse
     {
-        $pdf = Pdf::loadView('pdf.statistics', $stats);
-        $filename = "statistics_user_{$stats['user_id']}_" . now()->format('Y-m-d') . '.pdf';
+        $pdf = Pdf::loadView('pdf.statistics', [
+            'stats' => $stats,
+        ])->setPaper('a4');
+
+        $filename = "report_user_{$user->id}_" . now()->format('Y-m-d') . '.pdf';
         $path = 'public/' . $filename;
         Storage::put($path, $pdf->output());
 
