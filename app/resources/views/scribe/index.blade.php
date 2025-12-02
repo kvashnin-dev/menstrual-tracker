@@ -75,7 +75,7 @@
                                 <a href="#authentication-POSTapi-register">Регистрация нового пользователя</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="authentication-POSTapi-login">
-                                <a href="#authentication-POSTapi-login">Аутентификация пользователя</a>
+                                <a href="#authentication-POSTapi-login">Вход в систему</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="authentication-GETapi-email-verify--id---hash-">
                                 <a href="#authentication-GETapi-email-verify--id---hash-">Подтверждение email</a>
@@ -94,10 +94,16 @@
                 </li>
                                     <ul id="tocify-subheader-calendar" class="tocify-subheader">
                                                     <li class="tocify-item level-2" data-unique="calendar-GETapi-calendar">
-                                <a href="#calendar-GETapi-calendar">Получить календарь (всё: месячные, прогнозы, овуляция, симптомы)</a>
+                                <a href="#calendar-GETapi-calendar">GET /api/calendar?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
+Получить календарь за указанный период</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="calendar-POSTapi-calendar">
-                                <a href="#calendar-POSTapi-calendar">Обновить день → пересчитать ВЕСЬ календарь</a>
+                                <a href="#calendar-POSTapi-calendar">POST /api/calendar
+Сохранить/обновить день</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="calendar-GETapi-calendar-symptoms">
+                                <a href="#calendar-GETapi-calendar-symptoms">GET /api/calendar/symptoms
+Получить список всех доступных симптомов</a>
                             </li>
                                                                         </ul>
                             </ul>
@@ -107,10 +113,23 @@
                 </li>
                                     <ul id="tocify-subheader-profile" class="tocify-subheader">
                                                     <li class="tocify-item level-2" data-unique="profile-GETapi-profile">
-                                <a href="#profile-GETapi-profile">Получить профиль пользователя</a>
+                                <a href="#profile-GETapi-profile">GET /api/profile
+Получить данные профиля</a>
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="profile-PATCHapi-profile">
-                                <a href="#profile-PATCHapi-profile">Обновить профиль (беременность)</a>
+                                <a href="#profile-PATCHapi-profile">PATCH /api/profile
+Обновить статус беременности</a>
+                            </li>
+                                                                        </ul>
+                            </ul>
+                    <ul id="tocify-header-statistics" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="statistics">
+                    <a href="#statistics">Statistics</a>
+                </li>
+                                    <ul id="tocify-subheader-statistics" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="statistics-GETapi-statistics">
+                                <a href="#statistics-GETapi-statistics">GET /api/statistics
+Получить статистику по циклу и симптомам</a>
                             </li>
                                                                         </ul>
                             </ul>
@@ -123,7 +142,7 @@
     </ul>
 
     <ul class="toc-footer" id="last-updated">
-        <li>Last updated: November 11, 2025</li>
+        <li>Last updated: December 2, 2025</li>
     </ul>
 </div>
 
@@ -163,10 +182,10 @@ You can switch the language used with the tabs at the top right (or from the nav
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"email\": \"test@example.com\",
-    \"password\": \"password123\",
-    \"is_pregnant\": true,
-    \"due_date\": \"2026-06-15\'\"
+    \"email\": \"qkunze@example.com\",
+    \"password\": \"O[2UZ5ij-e\\/dl4m{o,\",
+    \"is_pregnant\": false,
+    \"due_date\": \"consequatur\"
 }"
 </code></pre></div>
 
@@ -182,10 +201,10 @@ const headers = {
 };
 
 let body = {
-    "email": "test@example.com",
-    "password": "password123",
-    "is_pregnant": true,
-    "due_date": "2026-06-15'"
+    "email": "qkunze@example.com",
+    "password": "O[2UZ5ij-e\/dl4m{o,",
+    "is_pregnant": false,
+    "due_date": "consequatur"
 };
 
 fetch(url, {
@@ -198,18 +217,14 @@ fetch(url, {
 
 <span id="example-responses-POSTapi-register">
             <blockquote>
-            <p>Example response (201):</p>
+            <p>Example response (201, success):</p>
         </blockquote>
                 <pre>
 
-<code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;User registered. Please verify your email.&quot;,
-    &quot;verification_url&quot;: &quot;http://localhost:8000/api/email/verify/1/abc123?expires=...&amp;signature=...&quot;,
-    &quot;expires_in&quot;: &quot;24 hours&quot;
-}</code>
+<code class="language-json" style="max-height: 300px;"></code>
  </pre>
             <blockquote>
-            <p>Example response (422):</p>
+            <p>Example response (422, validation_failed):</p>
         </blockquote>
                 <pre>
 
@@ -220,6 +235,19 @@ fetch(url, {
         ],
         &quot;password&quot;: [
             &quot;The password must be at least 8 characters.&quot;
+        ]
+    }
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422, invalid_email):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;errors&quot;: {
+        &quot;email&quot;: [
+            &quot;The email field must be a valid email address.&quot;
         ]
     }
 }</code>
@@ -304,10 +332,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="email"                data-endpoint="POSTapi-register"
-               value="test@example.com"
+               value="qkunze@example.com"
                data-component="body">
     <br>
-<p>Email пользователя. Example: <code>test@example.com</code></p>
+<p>Валидный email (реальный домен) Example: <code>qkunze@example.com</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>password</code></b>&nbsp;&nbsp;
@@ -316,10 +344,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="password"                data-endpoint="POSTapi-register"
-               value="password123"
+               value="O[2UZ5ij-e/dl4m{o,"
                data-component="body">
     <br>
-<p>Пароль (мин. 8 символов). Example: <code>password123</code></p>
+<p>Минимум 8 символов Example: <code>O[2UZ5ij-e/dl4m{o,</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>is_pregnant</code></b>&nbsp;&nbsp;
@@ -341,7 +369,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>optional Беременна ли вы сейчас? Example: <code>true</code></p>
+<p>optional default: false Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>due_date</code></b>&nbsp;&nbsp;
@@ -350,14 +378,14 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="due_date"                data-endpoint="POSTapi-register"
-               value="2026-06-15'"
+               value="consequatur"
                data-component="body">
     <br>
-<p>optional Ожидаемая дата родов. Example: <code>2026-06-15'</code></p>
+<p>optional Y-m-d, только если is_pregnant=true Example: <code>consequatur</code></p>
         </div>
         </form>
 
-                    <h2 id="authentication-POSTapi-login">Аутентификация пользователя</h2>
+                    <h2 id="authentication-POSTapi-login">Вход в систему</h2>
 
 <p>
 </p>
@@ -374,8 +402,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"email\": \"test@example.com\",
-    \"password\": \"password123\"
+    \"email\": \"qkunze@example.com\",
+    \"password\": \"O[2UZ5ij-e\\/dl4m{o,\"
 }"
 </code></pre></div>
 
@@ -391,8 +419,8 @@ const headers = {
 };
 
 let body = {
-    "email": "test@example.com",
-    "password": "password123"
+    "email": "qkunze@example.com",
+    "password": "O[2UZ5ij-e\/dl4m{o,"
 };
 
 fetch(url, {
@@ -405,21 +433,14 @@ fetch(url, {
 
 <span id="example-responses-POSTapi-login">
             <blockquote>
-            <p>Example response (200):</p>
+            <p>Example response (200, success):</p>
         </blockquote>
                 <pre>
 
-<code class="language-json" style="max-height: 300px;">{
-    &quot;user&quot;: {
-        &quot;id&quot;: 1,
-        &quot;email&quot;: &quot;test@example.com&quot;,
-        &quot;email_verified_at&quot;: &quot;2025-11-09T10:00:00.000000Z&quot;
-    },
-    &quot;token&quot;: &quot;2|random-token-string&quot;
-}</code>
+<code class="language-json" style="max-height: 300px;"></code>
  </pre>
             <blockquote>
-            <p>Example response (401):</p>
+            <p>Example response (401, wrong_credentials):</p>
         </blockquote>
                 <pre>
 
@@ -428,12 +449,25 @@ fetch(url, {
 }</code>
  </pre>
             <blockquote>
-            <p>Example response (403):</p>
+            <p>Example response (403, not_verified):</p>
         </blockquote>
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
     &quot;message&quot;: &quot;Please verify your email before logging in.&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422, validation_failed):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;errors&quot;: {
+        &quot;email&quot;: [
+            &quot;The email field is required.&quot;
+        ]
+    }
 }</code>
  </pre>
     </span>
@@ -516,10 +550,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="email"                data-endpoint="POSTapi-login"
-               value="test@example.com"
+               value="qkunze@example.com"
                data-component="body">
     <br>
-<p>Email пользователя. Example: <code>test@example.com</code></p>
+<p>Example: <code>qkunze@example.com</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>password</code></b>&nbsp;&nbsp;
@@ -528,10 +562,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="password"                data-endpoint="POSTapi-login"
-               value="password123"
+               value="O[2UZ5ij-e/dl4m{o,"
                data-component="body">
     <br>
-<p>Пароль. Example: <code>password123</code></p>
+<p>Example: <code>O[2UZ5ij-e/dl4m{o,</code></p>
         </div>
         </form>
 
@@ -918,7 +952,7 @@ fetch(url, {
 
 <span id="example-responses-POSTapi-logout">
             <blockquote>
-            <p>Example response (200):</p>
+            <p>Example response (200, success):</p>
         </blockquote>
                 <pre>
 
@@ -927,12 +961,21 @@ fetch(url, {
 }</code>
  </pre>
             <blockquote>
-            <p>Example response (401):</p>
+            <p>Example response (401, no_token):</p>
         </blockquote>
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;message&quot;: &quot;Unauthenticated&quot;
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (401, invalid_token):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
 }</code>
  </pre>
     </span>
@@ -1013,7 +1056,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
     
 
-                                <h2 id="calendar-GETapi-calendar">Получить календарь (всё: месячные, прогнозы, овуляция, симптомы)</h2>
+                                <h2 id="calendar-GETapi-calendar">GET /api/calendar?start_date=YYYY-MM-DD&amp;end_date=YYYY-MM-DD
+Получить календарь за указанный период</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -1027,12 +1071,12 @@ You can check the Dev Tools console for debugging information.</code></pre>
 
 <div class="bash-example">
     <pre><code class="language-bash">curl --request GET \
-    --get "http://localhost:8000/api/calendar?start_date=2025-11-01&amp;end_date=2026-02-28" \
+    --get "http://localhost:8000/api/calendar?start_date=2025-12-01&amp;end_date=2025-12-31" \
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"start_date\": \"2025-11-11T10:17:26\",
-    \"end_date\": \"2106-12-10\"
+    \"start_date\": \"2025-12-02\",
+    \"end_date\": \"2107-01-01\"
 }"
 </code></pre></div>
 
@@ -1043,8 +1087,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
 );
 
 const params = {
-    "start_date": "2025-11-01",
-    "end_date": "2026-02-28",
+    "start_date": "2025-12-01",
+    "end_date": "2025-12-31",
 };
 Object.keys(params)
     .forEach(key =&gt; url.searchParams.append(key, params[key]));
@@ -1055,8 +1099,8 @@ const headers = {
 };
 
 let body = {
-    "start_date": "2025-11-11T10:17:26",
-    "end_date": "2106-12-10"
+    "start_date": "2025-12-02",
+    "end_date": "2107-01-01"
 };
 
 fetch(url, {
@@ -1073,21 +1117,23 @@ fetch(url, {
         </blockquote>
                 <pre>
 
-<code class="language-json" style="max-height: 300px;">[
-    {
-        &quot;date&quot;: &quot;2025-11-09&quot;,
-        &quot;is_period&quot;: true,
-        &quot;is_predicted&quot;: false,
-        &quot;is_ovulation&quot;: false,
-        &quot;is_fertile&quot;: false,
-        &quot;note&quot;: &quot;День 1&quot;,
-        &quot;symptoms&quot;: [
-            &quot;period&quot;,
-            &quot;cramps&quot;,
-            &quot;sex&quot;
-        ]
-    }
-]</code>
+<code class="language-json" style="max-height: 300px;">array</code>
+ </pre>
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{&quot;message&quot;:&quot;The start_date field is required.&quot;, ...}</code>
  </pre>
     </span>
 <span id="execution-results-GETapi-calendar" hidden>
@@ -1169,10 +1215,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="start_date"                data-endpoint="GETapi-calendar"
-               value="2025-11-01"
+               value="2025-12-01"
                data-component="query">
     <br>
-<p>date Начало (Y-m-d). Example: <code>2025-11-01</code></p>
+<p>Дата начала (Y-m-d) Example: <code>2025-12-01</code></p>
             </div>
                                     <div style="padding-left: 28px; clear: unset;">
                 <b style="line-height: 2;"><code>end_date</code></b>&nbsp;&nbsp;
@@ -1181,10 +1227,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="end_date"                data-endpoint="GETapi-calendar"
-               value="2026-02-28"
+               value="2025-12-31"
                data-component="query">
     <br>
-<p>date Конец (Y-m-d). Example: <code>2026-02-28</code></p>
+<p>Дата окончания (Y-m-d) Example: <code>2025-12-31</code></p>
             </div>
                         <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
         <div style=" padding-left: 28px;  clear: unset;">
@@ -1194,10 +1240,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="start_date"                data-endpoint="GETapi-calendar"
-               value="2025-11-11T10:17:26"
+               value="2025-12-02"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2025-11-11T10:17:26</code></p>
+<p>Must be a valid date in the format <code>Y-m-d</code>. Example: <code>2025-12-02</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>end_date</code></b>&nbsp;&nbsp;
@@ -1206,14 +1252,15 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="end_date"                data-endpoint="GETapi-calendar"
-               value="2106-12-10"
+               value="2107-01-01"
                data-component="body">
     <br>
-<p>Must be a valid date. Must be a date after or equal to <code>start_date</code>. Example: <code>2106-12-10</code></p>
+<p>Must be a valid date in the format <code>Y-m-d</code>. Must be a date after or equal to <code>start_date</code>. Example: <code>2107-01-01</code></p>
         </div>
         </form>
 
-                    <h2 id="calendar-POSTapi-calendar">Обновить день → пересчитать ВЕСЬ календарь</h2>
+                    <h2 id="calendar-POSTapi-calendar">POST /api/calendar
+Сохранить/обновить день</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -1231,13 +1278,14 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"date\": \"2025-11-09\",
+    \"date\": \"2025-12-05\",
     \"is_period\": true,
     \"symptoms\": [
-        \"sex\",
-        \"cramps\"
+        \"cramps\",
+        \"headache\",
+        \"sex\"
     ],
-    \"note\": \"День 1\"
+    \"note\": \"\\\"Болит всё\\\"\"
 }"
 </code></pre></div>
 
@@ -1253,13 +1301,14 @@ const headers = {
 };
 
 let body = {
-    "date": "2025-11-09",
+    "date": "2025-12-05",
     "is_period": true,
     "symptoms": [
-        "sex",
-        "cramps"
+        "cramps",
+        "headache",
+        "sex"
     ],
-    "note": "День 1"
+    "note": "\"Болит всё\""
 };
 
 fetch(url, {
@@ -1271,7 +1320,51 @@ fetch(url, {
 </span>
 
 <span id="example-responses-POSTapi-calendar">
-</span>
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Day updated successfully&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422, date_invalid):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;errors&quot;: {
+        &quot;date&quot;: [
+            &quot;The date field must be a valid date.&quot;
+        ]
+    }
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422, symptom_not_exists):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;errors&quot;: {
+        &quot;symptoms.0&quot;: [
+            &quot;The selected symptoms.0 is invalid.&quot;
+        ]
+    }
+}</code>
+ </pre>
+    </span>
 <span id="execution-results-POSTapi-calendar" hidden>
     <blockquote>Received response<span
                 id="execution-response-status-POSTapi-calendar"></span>:
@@ -1351,10 +1444,10 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="date"                data-endpoint="POSTapi-calendar"
-               value="2025-11-09"
+               value="2025-12-05"
                data-component="body">
     <br>
-<p>Дата. Example: <code>2025-11-09</code></p>
+<p>Дата в формате Y-m-d Example: <code>2025-12-05</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>is_period</code></b>&nbsp;&nbsp;
@@ -1376,7 +1469,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>optional Месячные. Example: <code>true</code></p>
+<p>optional true — есть месячные, false — убрать месячные Example: <code>true</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>symptoms</code></b>&nbsp;&nbsp;
@@ -1390,7 +1483,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                name="symptoms[1]"                data-endpoint="POSTapi-calendar"
                data-component="body">
     <br>
-<p>optional Симптомы.</p>
+<p>optional Массив ключей симптомов (должны существовать в таблице symptoms)</p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>note</code></b>&nbsp;&nbsp;
@@ -1399,18 +1492,147 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="note"                data-endpoint="POSTapi-calendar"
-               value="День 1"
+               value=""Болит всё""
                data-component="body">
     <br>
-<p>optional Заметка. Example: <code>День 1</code></p>
+<p>optional Заметка (сохраняется только если is_period=true) Example: <code>"Болит всё"</code></p>
         </div>
         </form>
+
+                    <h2 id="calendar-GETapi-calendar-symptoms">GET /api/calendar/symptoms
+Получить список всех доступных симптомов</h2>
+
+<p>
+<small class="badge badge-darkred">requires authentication</small>
+</p>
+
+
+
+<span id="example-requests-GETapi-calendar-symptoms">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/calendar/symptoms" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/calendar/symptoms"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-calendar-symptoms">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">array</code>
+ </pre>
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-calendar-symptoms" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-calendar-symptoms"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-calendar-symptoms"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-calendar-symptoms" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-calendar-symptoms">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-calendar-symptoms" data-method="GET"
+      data-path="api/calendar/symptoms"
+      data-authed="1"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-calendar-symptoms', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-calendar-symptoms"
+                    onclick="tryItOut('GETapi-calendar-symptoms');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-calendar-symptoms"
+                    onclick="cancelTryOut('GETapi-calendar-symptoms');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-calendar-symptoms"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/calendar/symptoms</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-calendar-symptoms"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-calendar-symptoms"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
 
                 <h1 id="profile">Profile</h1>
 
     
 
-                                <h2 id="profile-GETapi-profile">Получить профиль пользователя</h2>
+                                <h2 id="profile-GETapi-profile">GET /api/profile
+Получить данные профиля</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -1453,9 +1675,18 @@ fetch(url, {
                 <pre>
 
 <code class="language-json" style="max-height: 300px;">{
-    &quot;email&quot;: &quot;user@example.com&quot;,
-    &quot;is_pregnant&quot;: true,
-    &quot;due_date&quot;: &quot;2026-06-15&quot;
+    &quot;email&quot;: &quot;test@test.com&quot;,
+    &quot;is_pregnant&quot;: false,
+    &quot;due_date&quot;: null
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
 }</code>
  </pre>
     </span>
@@ -1532,7 +1763,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
             </div>
                         </form>
 
-                    <h2 id="profile-PATCHapi-profile">Обновить профиль (беременность)</h2>
+                    <h2 id="profile-PATCHapi-profile">PATCH /api/profile
+Обновить статус беременности</h2>
 
 <p>
 <small class="badge badge-darkred">requires authentication</small>
@@ -1550,8 +1782,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --header "Content-Type: application/json" \
     --header "Accept: application/json" \
     --data "{
-    \"is_pregnant\": true,
-    \"due_date\": \"2026-06-15\"
+    \"is_pregnant\": false,
+    \"due_date\": \"2026-08-15\"
 }"
 </code></pre></div>
 
@@ -1567,8 +1799,8 @@ const headers = {
 };
 
 let body = {
-    "is_pregnant": true,
-    "due_date": "2026-06-15"
+    "is_pregnant": false,
+    "due_date": "2026-08-15"
 };
 
 fetch(url, {
@@ -1588,11 +1820,20 @@ fetch(url, {
 <code class="language-json" style="max-height: 300px;">{
     &quot;message&quot;: &quot;Profile updated&quot;,
     &quot;is_pregnant&quot;: true,
-    &quot;due_date&quot;: &quot;2026-06-15&quot;
+    &quot;due_date&quot;: &quot;2026-08-15&quot;
 }</code>
  </pre>
             <blockquote>
-            <p>Example response (422):</p>
+            <p>Example response (401):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422, invalid_date):</p>
         </blockquote>
                 <pre>
 
@@ -1600,6 +1841,19 @@ fetch(url, {
     &quot;errors&quot;: {
         &quot;due_date&quot;: [
             &quot;The due date field must be a valid date.&quot;
+        ]
+    }
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (422, date_in_past):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;errors&quot;: {
+        &quot;due_date&quot;: [
+            &quot;The due date must be a date after today.&quot;
         ]
     }
 }</code>
@@ -1697,7 +1951,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
             <code>false</code>
         </label>
     <br>
-<p>optional Беременна. Example: <code>true</code></p>
+<p>optional true — беременна, false — нет Example: <code>false</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>due_date</code></b>&nbsp;&nbsp;
@@ -1706,12 +1960,153 @@ You can check the Dev Tools console for debugging information.</code></pre>
  &nbsp;
                 <input type="text" style="display: none"
                               name="due_date"                data-endpoint="PATCHapi-profile"
-               value="2026-06-15"
+               value="2026-08-15"
                data-component="body">
     <br>
-<p>optional Ожидаемая дата родов (Y-m-d). Example: <code>2026-06-15</code></p>
+<p>optional Ожидаемая дата родов (Y-m-d), только если is_pregnant=true Example: <code>2026-08-15</code></p>
         </div>
         </form>
+
+                <h1 id="statistics">Statistics</h1>
+
+    
+
+                                <h2 id="statistics-GETapi-statistics">GET /api/statistics
+Получить статистику по циклу и симптомам</h2>
+
+<p>
+<small class="badge badge-darkred">requires authentication</small>
+</p>
+
+
+
+<span id="example-requests-GETapi-statistics">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost:8000/api/statistics" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost:8000/api/statistics"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-statistics">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;average_cycle_days&quot;: 28.5,
+    &quot;total_cycles&quot;: 2,
+    &quot;total_period_days&quot;: 15,
+    &quot;painful_period_percentage&quot;: 67,
+    &quot;most_common_symptom&quot;: &quot;cramps&quot;,
+    &quot;sex_days&quot;: 4,
+    &quot;is_pregnant&quot;: false,
+    &quot;generated_at&quot;: &quot;2025-12-02 23:30:00&quot;
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (401):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;message&quot;: &quot;Unauthenticated.&quot;
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-statistics" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-statistics"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-statistics"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-statistics" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-statistics">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-statistics" data-method="GET"
+      data-path="api/statistics"
+      data-authed="1"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-statistics', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-statistics"
+                    onclick="tryItOut('GETapi-statistics');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-statistics"
+                    onclick="cancelTryOut('GETapi-statistics');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-statistics"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/statistics</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-statistics"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-statistics"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
 
             
 

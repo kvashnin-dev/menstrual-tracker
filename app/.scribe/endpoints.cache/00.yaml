@@ -29,77 +29,81 @@ endpoints:
       email:
         custom: []
         name: email
-        description: 'Email пользователя.'
+        description: 'Валидный email (реальный домен)'
         required: true
-        example: test@example.com
+        example: qkunze@example.com
         type: string
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
       password:
         custom: []
         name: password
-        description: 'Пароль (мин. 8 символов).'
+        description: 'Минимум 8 символов'
         required: true
-        example: password123
+        example: 'O[2UZ5ij-e/dl4m{o,'
         type: string
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
       is_pregnant:
         custom: []
         name: is_pregnant
-        description: 'optional Беременна ли вы сейчас?'
+        description: 'optional default: false'
         required: false
-        example: true
+        example: false
         type: boolean
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
       due_date:
         custom: []
         name: due_date
-        description: 'optional Ожидаемая дата родов.'
+        description: 'optional Y-m-d, только если is_pregnant=true'
         required: false
-        example: "2026-06-15'"
+        example: consequatur
         type: date
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      email: test@example.com
-      password: password123
-      is_pregnant: true
-      due_date: "2026-06-15'"
+      email: qkunze@example.com
+      password: 'O[2UZ5ij-e/dl4m{o,'
+      is_pregnant: false
+      due_date: consequatur
     fileParameters: []
     responses:
       -
         custom: []
         status: 201
-        content: |-
-          {
-              "message": "User registered. Please verify your email.",
-              "verification_url": "http://localhost:8000/api/email/verify/1/abc123?expires=...&signature=...",
-              "expires_in": "24 hours"
-          }
+        content: ''
         headers: []
-        description: ''
+        description: success
       -
         custom: []
         status: 422
         content: |-
           {
-              "errors": {
-                  "email": ["The email has already been taken."],
-                  "password": ["The password must be at least 8 characters."]
-              }
+            "errors": {
+              "email": ["The email has already been taken."],
+              "password": ["The password must be at least 8 characters."]
+            }
           }
         headers: []
-        description: ''
+        description: validation_failed
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "errors": { "email": ["The email field must be a valid email address."] }
+          }
+        headers: []
+        description: invalid_email
     responseFields: []
     auth: []
     controller: null
@@ -116,7 +120,7 @@ endpoints:
       groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: 'Аутентификация пользователя'
+      title: 'Вход в систему'
       description: ''
       authenticated: false
       deprecated: false
@@ -131,62 +135,63 @@ endpoints:
       email:
         custom: []
         name: email
-        description: 'Email пользователя.'
+        description: ''
         required: true
-        example: test@example.com
+        example: qkunze@example.com
         type: string
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
       password:
         custom: []
         name: password
-        description: Пароль.
+        description: ''
         required: true
-        example: password123
+        example: 'O[2UZ5ij-e/dl4m{o,'
         type: string
         enumValues: []
-        exampleWasSpecified: true
+        exampleWasSpecified: false
         nullable: false
         deprecated: false
     cleanBodyParameters:
-      email: test@example.com
-      password: password123
+      email: qkunze@example.com
+      password: 'O[2UZ5ij-e/dl4m{o,'
     fileParameters: []
     responses:
       -
         custom: []
         status: 200
-        content: |-
-          {
-              "user": {
-                  "id": 1,
-                  "email": "test@example.com",
-                  "email_verified_at": "2025-11-09T10:00:00.000000Z"
-              },
-              "token": "2|random-token-string"
-          }
+        content: ''
         headers: []
-        description: ''
+        description: success
       -
         custom: []
         status: 401
         content: |-
           {
-              "message": "Invalid credentials"
+            "message": "Invalid credentials"
           }
         headers: []
-        description: ''
+        description: wrong_credentials
       -
         custom: []
         status: 403
         content: |-
           {
-              "message": "Please verify your email before logging in."
+            "message": "Please verify your email before logging in."
           }
         headers: []
-        description: ''
+        description: not_verified
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "errors": { "email": ["The email field is required."] }
+          }
+        headers: []
+        description: validation_failed
     responseFields: []
     auth: []
     controller: null
@@ -401,19 +406,28 @@ endpoints:
         status: 200
         content: |-
           {
-              "message": "Logged out successfully"
+            "message": "Logged out successfully"
           }
         headers: []
-        description: ''
+        description: success
       -
         custom: []
         status: 401
         content: |-
           {
-              "message": "Unauthenticated"
+            "message": "Unauthenticated."
           }
         headers: []
-        description: ''
+        description: no_token
+      -
+        custom: []
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated."
+          }
+        headers: []
+        description: invalid_token
     responseFields: []
     auth: []
     controller: null

@@ -1,18 +1,20 @@
-name: Profile
+name: Statistics
 description: ''
 endpoints:
   -
     custom: []
     httpMethods:
       - GET
-    uri: api/profile
+    uri: api/statistics
     metadata:
       custom: []
-      groupName: Profile
+      groupName: Statistics
       groupDescription: ''
       subgroup: ''
       subgroupDescription: ''
-      title: 'Получить профиль пользователя'
+      title: |-
+        GET /api/statistics
+        Получить статистику по циклу и симптомам
       description: ''
       authenticated: true
       deprecated: false
@@ -32,85 +34,21 @@ endpoints:
         status: 200
         content: |-
           {
-              "email": "user@example.com",
-              "is_pregnant": true,
-              "due_date": "2026-06-15"
-          }
-        headers: []
-        description: ''
-    responseFields: []
-    auth: []
-    controller: null
-    method: null
-    route: null
-  -
-    custom: []
-    httpMethods:
-      - PATCH
-    uri: api/profile
-    metadata:
-      custom: []
-      groupName: Profile
-      groupDescription: ''
-      subgroup: ''
-      subgroupDescription: ''
-      title: 'Обновить профиль (беременность)'
-      description: ''
-      authenticated: true
-      deprecated: false
-    headers:
-      Content-Type: application/json
-      Accept: application/json
-    urlParameters: []
-    cleanUrlParameters: []
-    queryParameters: []
-    cleanQueryParameters: []
-    bodyParameters:
-      is_pregnant:
-        custom: []
-        name: is_pregnant
-        description: 'optional Беременна.'
-        required: false
-        example: true
-        type: boolean
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
-      due_date:
-        custom: []
-        name: due_date
-        description: 'optional Ожидаемая дата родов (Y-m-d).'
-        required: false
-        example: '2026-06-15'
-        type: date
-        enumValues: []
-        exampleWasSpecified: true
-        nullable: true
-        deprecated: false
-    cleanBodyParameters:
-      is_pregnant: true
-      due_date: '2026-06-15'
-    fileParameters: []
-    responses:
-      -
-        custom: []
-        status: 200
-        content: |-
-          {
-              "message": "Profile updated",
-              "is_pregnant": true,
-              "due_date": "2026-06-15"
+            "average_cycle_days": 28.5,
+            "total_cycles": 2,
+            "total_period_days": 15,
+            "painful_period_percentage": 67,
+            "most_common_symptom": "cramps",
+            "sex_days": 4,
+            "is_pregnant": false,
+            "generated_at": "2025-12-02 23:30:00"
           }
         headers: []
         description: ''
       -
         custom: []
-        status: 422
-        content: |-
-          {
-              "errors": { "due_date": ["The due date field must be a valid date."] }
-          }
+        status: 401
+        content: '{"message":"Unauthenticated."}'
         headers: []
         description: ''
     responseFields: []

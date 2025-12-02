@@ -3,157 +3,81 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\CalendarDay;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class StatisticsController extends Controller
 {
     /**
-     * Получить статистику менструального цикла
+     * GET /api/statistics
+     * Получить статистику по циклу и симптомам
      *
      * @group Statistics
      * @authenticated
      *
-     * @queryParam format string optional Формат ответа: `json` (по умолчанию) или `pdf`. Example: pdf
-     *
-     * @response 200 scenario="JSON" {
-     *     "user_id": 1,
-     *     "email": "user@example.com",
-     *     "average_cycle_days": 28.5,
-     *     "average_period_duration": 5.2,
-     *     "is_painful": true,
-     *     "is_sexually_active": true,
-     *     "is_pregnant": false,
-     *     "total_confirmed_period_days": 24,
-     *     "symptom_frequency": {
-     *         "cramps": { "count": 12, "percentage": 50 },
-     *         "headache": { "count": 8, "percentage": 33 }
-     *     },
-     *     "generated_at": "2025-11-11 03:52:00"
+     * @response 200 {
+     *   "average_cycle_days": 28.5,
+     *   "total_cycles": 2,
+     *   "total_period_days": 15,
+     *   "painful_period_percentage": 67,
+     *   "most_common_symptom": "cramps",
+     *   "sex_days": 4,
+     *   "is_pregnant": false,
+     *   "generated_at": "2025-12-02 23:30:00"
      * }
-     *
-     * @response 200 scenario="PDF" {
-     *     "message": "PDF report generated successfully",
-     *     "download_url": "http://localhost:8000/storage/statistics_user_1_2025-11-11.pdf",
-     *     "generated_at": "2025-11-11 03:52:00"
-     * }
-     *
-     * @response 401 {
-     *     "message": "Unauthenticated"
-     * }
-     *
-     * @responseFile storage/app/public/statistics_user_1_2025-11-11.pdf
+     * @response 401 {"message":"Unauthenticated."}
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $user = request()->user();
-        $format = request()->query('format', 'json');
-        $stats = $this->calculateStats($user);
+        $user = $request->user();
 
-        if ($format === 'pdf') {
-            return $this->generatePdf($stats, $user); // ← ВОТ ЭТО!
-        }
+        // Используем уже посчитанные в CalendarController значения
+        $avgCycle = $user->average_cycle_length;
+        $totalPeriodDays = $user->periodLogs()->distinct('date')->count();
+        $totalCycles = $avgCycle ? $this->calculateCycleCount($user) : 0;
 
-        return response()->json($stats);
-    }
+        $painSymptoms = ['cramps', 'headache', 'backache', 'nausea'];
+        $painfulDays = $user->symptomLogs()->whereIn('symptom_key', $painSymptoms)->count();
 
-    /**
-     * Рассчитать статистику на основе подтверждённых дней
-     */
-    private function calculateStats($user): array
-    {
-        $confirmedDays = $user->calendarDays()
-            ->where('is_period_confirmed', true)
-            ->with('symptoms')
-            ->orderBy('date')
-            ->get();
-
-        $cycleLengths = [];
-        $periodDurations = [];
-        $symptomFrequency = [];
-        $periodStart = null;
-        $inPeriod = false;
-        $periodDays = 0;
-
-        foreach ($confirmedDays as $day) {
-            if (!$inPeriod) {
-                if ($periodStart) {
-                    $cycleLengths[] = $periodStart->diffInDays($day->date);
-                }
-                $periodStart = $day->date;
-                $inPeriod = true;
-                $periodDays = 1;
-            } else {
-                $periodDays++;
-                if ($day->date->diffInDays($periodStart) > 7) {
-                    $periodDurations[] = $periodDays - 1;
-                    $inPeriod = false;
-                }
-            }
-
-            foreach ($day->symptoms as $s) {
-                $symptomFrequency[$s->key] = ($symptomFrequency[$s->key] ?? 0) + 1;
-            }
-        }
-
-        if ($inPeriod && $periodDays > 1) {
-            $periodDurations[] = $periodDays;
-        }
-
-        $avgCycle = $cycleLengths ? round(array_sum($cycleLengths) / count($cycleLengths), 1) : null;
-        $avgDuration = $periodDurations ? round(array_sum($periodDurations) / count($periodDurations), 1) : null;
-
-        $totalPeriodDays = $confirmedDays->count();
-        $painfulDays = $confirmedDays->filter(fn($d) =>
-        $d->symptoms->whereIn('key', ['cramps', 'headache', 'nausea', 'backache'])->count()
-        )->count();
-        $isPainful = $totalPeriodDays > 0 && ($painfulDays / $totalPeriodDays) > 0.5;
-
-        $sexDays = $confirmedDays->filter(fn($d) =>
-        $d->symptoms->where('key', 'sex')->count()
-        )->count();
-
-        $isSexuallyActive = $sexDays > 0;
-
-        return [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'average_cycle_days' => $avgCycle,
-            'average_period_duration' => $avgDuration,
-            'is_painful' => $isPainful,
-            'is_sexually_active' => $isSexuallyActive,
-            'sex_days_count' => $sexDays, // ← Добавлено
-            'is_pregnant' => $user->is_pregnant,
-            'due_date' => $user->due_date,
-            'total_confirmed_period_days' => $totalPeriodDays,
-            'symptom_frequency' => collect($symptomFrequency)->map(fn($count) => [
-                'count' => $count,
-                'percentage' => $totalPeriodDays > 0 ? round(($count / $totalPeriodDays) * 100) : 0
-            ])->toArray(),
-            'generated_at' => now()->format('Y-m-d H:i:s'),
-        ];
-    }
-
-    /**
-     * Сгенерировать PDF-отчёт
-     */
-    private function generatePdf(array $stats, $user): JsonResponse
-    {
-        $pdf = Pdf::loadView('pdf.statistics', [
-            'stats' => $stats,
-        ])->setPaper('a4');
-
-        $filename = "report_user_{$user->id}_" . now()->format('Y-m-d') . '.pdf';
-        $path = 'public/' . $filename;
-        Storage::put($path, $pdf->output());
+        $mostCommon = $user->symptomLogs()
+            ->select('symptom_key')
+            ->groupBy('symptom_key')
+            ->orderByRaw('COUNT(*) DESC')
+            ->first()
+            ?->symptom_key ?? 'Нет данных';
 
         return response()->json([
-            'message' => 'PDF report generated successfully',
-            'download_url' => url('storage/' . $filename),
-            'generated_at' => now()->toDateTimeString(),
+            'average_cycle_days'        => $avgCycle ? round($avgCycle, 1) : null,
+            'total_cycles'              => $totalCycles,
+            'total_period_days'         => $totalPeriodDays,
+            'painful_period_percentage' => $totalPeriodDays > 0 ? (int) round(($painfulDays / $totalPeriodDays) * 100) : 0,
+            'most_common_symptom'       => $mostCommon,
+            'sex_days'                  => $user->symptomLogs()->where('symptom_key', 'sex')->count(),
+            'is_pregnant'               => $user->is_pregnant,
+            'generated_at'              => now()->format('Y-m-d H:i:s'),
         ]);
+    }
+
+    private function calculateCycleCount($user): int
+    {
+        $dates = $user->periodLogs()
+            ->orderBy('date')
+            ->pluck('date')
+            ->map->startOfDay()
+            ->unique();
+
+        if ($dates->count() < 2) return 0;
+
+        $count = 0;
+        $prev = $dates->first();
+
+        foreach ($dates->skip(1) as $date) {
+            if ($date->diffInDays($prev) >= 10) {
+                $count++;
+            }
+            $prev = $date;
+        }
+
+        return $count;
     }
 }

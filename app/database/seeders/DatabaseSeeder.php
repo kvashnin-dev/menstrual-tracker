@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SymptomSeeder::class,     // ← Убедись, что симптомы есть
-            TestUsersSeeder::class,
+//            TestUsersSeeder::class,
         ]);
     }
 }

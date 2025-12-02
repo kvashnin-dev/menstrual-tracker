@@ -4,40 +4,37 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\EmailVerificationController;
 use App\Http\Controllers\API\CalendarController;
+use App\Http\Controllers\API\ProfileController;
+use App\Http\Controllers\API\StatisticsController;
 
-// Публичные маршруты
+// Публичные
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Верификация email
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-    ->name('verification.verify');
+    ->name('verification.verify')
+    ->middleware('signed');
 
 Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
-    ->middleware(['auth:sanctum', 'throttle:6,1'])
-    ->name('verification.send');
+    ->name('verification.send')
+    ->middleware(['auth:sanctum', 'throttle:6,1']);
 
 // Защищённые маршруты
 Route::middleware('auth:sanctum')->group(function () {
-    // Выход — отдельно с name()
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Календарь
-    Route::get('calendar', [CalendarController::class, 'index']);
-    Route::post('calendar', [CalendarController::class, 'store']);
-    Route::get('predictions', [CalendarController::class, 'predictions']);
-});
+    // Выход
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-use App\Http\Controllers\API\StatisticsController;
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/statistics', [StatisticsController::class, 'index']);
-});
-
-// routes/api.php
-use App\Http\Controllers\API\ProfileController;
-
-Route::middleware('auth:sanctum')->group(function () {
+    // Профиль
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::patch('/profile', [ProfileController::class, 'update']);
+
+    // Статистика
+    Route::get('/statistics', [StatisticsController::class, 'index']);
+
+    // Календарь
+    Route::get('/calendar', [CalendarController::class, 'index']);
+    Route::post('/calendar', [CalendarController::class, 'store']); // POST на /calendar
+    Route::get('/calendar/symptoms', [CalendarController::class, 'symptoms']);
 });
